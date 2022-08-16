@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "shared.proto";
+
+option csharp_namespace = "XTC.FMP.MOD.ImageAtlas3D.LIB.Proto";
+package xtc.fmp.imageatlas3d;
+
+// 设计器
+service Designer
+{
+    // 读取样式表
+    rpc ReadStyleSheet(ScopeRequest) returns (DesignerReadStylesResponse) { }
+    // 写入样式表
+    rpc WriteStyle(DesignerWriteStylesRequest) returns (BlankResponse) { }
+    // 读取实例表
+    rpc ReadInstances(ScopeRequest) returns (DesignerReadInstancesResponse) { }
+    // 写入实例表
+    rpc WriteInstances(DesignerWriteInstancesRequest) returns (BlankResponse) { }
+}
+
+// 读取样式表的回复
+message DesignerReadStylesResponse
+{
+    Status status = 1;  // 状态
+    string xml = 2;     // xml格式的样式表
+}
+
+// 写入样式表的请求
+message DesignerWriteStylesRequest
+{
+    string scope = 1; // 样式表的作用域
+    string xml = 2;   // xml格式的样式表
+}
+
+// 读取样式表的回复
+message DesignerReadInstancesResponse
+{
+    Status status = 1;  // 状态
+    string xml = 2;     // xml格式的实例表
+}
+
+// 写入样式表的请求
+message DesignerWriteInstancesRequest
+{
+    string scope = 1;  // 实例表的作用域
+    string xml = 2;    // xml格式的实例表
+}

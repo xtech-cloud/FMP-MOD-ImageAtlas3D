@@ -1,0 +1,31 @@
+
+@page "/xtc/imageatlas3d/designer"
+
+<Space Direction="DirectionVHType.Vertical">
+    <SpaceItem>
+        <Button Type="@ButtonType.Primary" OnClick="@__debugClick">Call</Button>
+    </SpaceItem>
+
+    <SpaceItem>
+        <Text>ReadStyleSheet:</Text>
+        <TextArea @bind-Value="@__debugReadStyleSheet" Rows="4" ReadOnly="true" />
+    </SpaceItem>
+
+    <SpaceItem>
+        <Text>WriteStyle:</Text>
+        <TextArea @bind-Value="@__debugWriteStyle" Rows="4" ReadOnly="true" />
+    </SpaceItem>
+
+    <SpaceItem>
+        <Text>ReadInstances:</Text>
+        <TextArea @bind-Value="@__debugReadInstances" Rows="4" ReadOnly="true" />
+    </SpaceItem>
+
+    <SpaceItem>
+        <Text>WriteInstances:</Text>
+        <TextArea @bind-Value="@__debugWriteInstances" Rows="4" ReadOnly="true" />
+    </SpaceItem>
+
+</Space>
+@code {
+}

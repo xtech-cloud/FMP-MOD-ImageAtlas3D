@@ -1,0 +1,29 @@
+{
+    "__remarks__": [
+        "分段切换时，如果配置有指定背景音乐，则会播放新文件"
+    ],
+    "verison": "v1",
+    "bgm": {
+        "file": "bgm.mp3",
+        "volume": 100
+    },
+    "blocks": [{
+        "image": {
+            "file": "1.jpg",
+            "rotation_y": 0
+        },
+        "voice": {
+            "file": "1.mp3",
+            "volume": 100
+        },
+        "bgm": {
+            "file": "",
+            "volume": 100
+        }
+    }],
+    "actions": {
+        "auto_rotate": {
+            "speed_y": 10
+        }
+    }
+}

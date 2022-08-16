@@ -1,0 +1,16 @@
+
+/_dist_/
+/_build_/
+/ImageAtlas3D/Assets/TextMesh Pro/
+/ImageAtlas3D/Assets/TextMesh Pro.meta
+/ImageAtlas3D/Assets/Plugins/
+/ImageAtlas3D/Assets/Plugins.meta
+/ImageAtlas3D/Library/
+/ImageAtlas3D/obj/
+/ImageAtlas3D/Logs/
+/ImageAtlas3D/Temp/
+/ImageAtlas3D/UserSettings/
+/ImageAtlas3D/*.sln
+/ImageAtlas3D/*.csproj
+/ImageAtlas3D/.vsconfig
+/.UNITY_HOME.env
