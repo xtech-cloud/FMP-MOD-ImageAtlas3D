@@ -8,21 +8,6 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
     /// </summary>
     public class MyConfig : MyConfigBase
     {
-        public class TipImage
-        {
-            [XmlAttribute("swip")]
-            public string swip { get; set; } = "";
-        }
-
-        public class VoiceButton
-        {
-            [XmlAttribute("image")]
-            public string image{ get; set; } = "";
-
-            [XmlElement("Anchor")]
-            public Anchor anchor { get; set; } = new Anchor();
-        }
-
         public class Style
         {
             [XmlAttribute("name")]
@@ -32,10 +17,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             public string renderer { get; set; } = "";
 
             [XmlElement("VoiceButton")]
-            public VoiceButton voiceButton{ get; set; } = new VoiceButton();
-
-            [XmlElement("TipImage")]
-            public TipImage tipImage { get; set; } = new TipImage();
+            public UiElement voiceButton{ get; set; } = new UiElement();
         }
 
 
