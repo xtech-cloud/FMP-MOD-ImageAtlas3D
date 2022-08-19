@@ -5,3 +5,9 @@ generate:
   database_driver: mongodb
   debug: false
   unity_solution: true
+publish:
+  active: true
+  org_name: XTC
+  module_name: ImageAtlas3D
+  environment: develop
+  repository: file://D:/MyPublish/fmp.repository
