@@ -9,5 +9,5 @@ publish:
   active: true
   org_name: XTC
   module_name: ImageAtlas3D
-  environment: develop
-  repository: file://D:/MyPublish/fmp.repository
+  environment: product
+  repository: grpc://localhost:18000
