@@ -15,4 +15,5 @@
 /ImageAtlas3D/*.sln
 /ImageAtlas3D/*.csproj
 /ImageAtlas3D/.vsconfig
+/ImageAtlas3D/.vs/
 /.UNITY_HOME.env
