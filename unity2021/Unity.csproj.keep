@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Reference Include="fmp-lib-mvcs">
-      <HintPath>{{WORK_DIR}}\ImageAtlas3D\Assets\3rd\fmp-lib-mvcs-1.6.0\fmp-lib-mvcs.dll</HintPath>
+      <HintPath>{{WORK_DIR}}\ImageAtlas3D\Assets\3rd\fmp-lib-mvcs-1.6.1\fmp-lib-mvcs.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>{{WORK_DIR}}\ImageAtlas3D\Assets\3rd\fmp-dependency\Newtonsoft.Json.dll</HintPath>
