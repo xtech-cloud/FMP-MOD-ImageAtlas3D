@@ -1,13 +1,15 @@
+org_name: XTC
+module_name: ImageAtlas3D
 generate:
   active: true
-  org_name: XTC
-  module_name: ImageAtlas3D
   database_driver: mongodb
   debug: false
   unity_solution: true
 publish:
   active: true
-  org_name: XTC
-  module_name: ImageAtlas3D
+  environment: product
+  repository: grpc://localhost:18000
+deploy:
+  active: true
   environment: product
   repository: grpc://localhost:18000
