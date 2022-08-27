@@ -13,3 +13,4 @@ deploy:
   active: true
   environment: product
   repository: grpc://localhost:18000
+  agent_port: 28010
