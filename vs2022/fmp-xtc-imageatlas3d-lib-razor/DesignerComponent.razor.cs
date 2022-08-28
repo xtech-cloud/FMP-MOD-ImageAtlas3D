@@ -17,7 +17,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Razor
                 razor_ = _razor;
             }
 
-            public void Alert(string _code, string _message, SynchronizationContext? _context)
+            public void Alert(string _code, string _message, object? _context)
             {
                 if (null == razor_.messageService_)
                     return;
@@ -28,25 +28,25 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Razor
             }
 
 
-            public void RefreshReadStyleSheet(IDTO _dto, SynchronizationContext? _context)
+            public void RefreshReadStyleSheet(IDTO _dto, object? _context)
             {
                 var dto = _dto as DesignerReadStylesResponseDTO;
                 razor_.__debugReadStyleSheet = dto?.Value.ToString();
             }
 
-            public void RefreshWriteStyle(IDTO _dto, SynchronizationContext? _context)
+            public void RefreshWriteStyle(IDTO _dto, object? _context)
             {
                 var dto = _dto as BlankResponseDTO;
                 razor_.__debugWriteStyle = dto?.Value.ToString();
             }
 
-            public void RefreshReadInstances(IDTO _dto, SynchronizationContext? _context)
+            public void RefreshReadInstances(IDTO _dto, object? _context)
             {
                 var dto = _dto as DesignerReadInstancesResponseDTO;
                 razor_.__debugReadInstances = dto?.Value.ToString();
             }
 
-            public void RefreshWriteInstances(IDTO _dto, SynchronizationContext? _context)
+            public void RefreshWriteInstances(IDTO _dto, object? _context)
             {
                 var dto = _dto as BlankResponseDTO;
                 razor_.__debugWriteInstances = dto?.Value.ToString();
