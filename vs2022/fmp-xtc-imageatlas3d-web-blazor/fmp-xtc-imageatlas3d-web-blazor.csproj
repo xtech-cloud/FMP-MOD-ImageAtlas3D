@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AntDesign" Version="0.11.0" />
     <PackageReference Include="AntDesign.Charts" Version="0.2.3" />
     <PackageReference Include="AntDesign.ProLayout" Version="0.10.6" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0" />
