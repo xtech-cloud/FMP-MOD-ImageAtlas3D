@@ -1,0 +1,16 @@
+{
+    "sectionS": [{
+        "name": "",
+        "path": "/",
+        "instanceS": [
+            "default"
+        ],
+        "contentS": [
+            "XTC.ImageAtlas3D/+"
+        ],
+        "kvS": {
+            "key1": "value1",
+            "key2": "value2"
+        }
+    }]
+}

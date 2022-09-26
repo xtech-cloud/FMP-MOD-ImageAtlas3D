@@ -33,7 +33,7 @@ public class Root : RootBase
 
         if (GUI.Button(new Rect(0, 30, 60, 30), "Open"))
         {
-            entry_.__DebugOpen("test", "file://assloud", "tech.meex.展馆测试/_assets/tech.meex.展馆测试_展馆1.ai3", 0.5f);
+            entry_.__DebugOpen("test", "file://assloud", "XTC.ImageAtlas3D/_resources/XTC.ImageAtlas3D.1.ai3", 0.5f);
         }
 
         if (GUI.Button(new Rect(0, 60, 60, 30), "Close"))

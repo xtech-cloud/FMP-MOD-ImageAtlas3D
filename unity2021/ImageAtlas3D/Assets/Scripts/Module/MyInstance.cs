@@ -32,27 +32,9 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         private string storageAddress_;
         private FormatSchemaV1.Block activeBlock_;
 
-        public MyInstance(string _uid, string _style, MyConfig _config, LibMVCS.Logger _logger, Dictionary<string, LibMVCS.Any> _settings, MyEntryBase _entry, MonoBehaviour _mono, GameObject _rootAttachments)
-            : base(_uid, _style, _config, _logger, _settings, _entry, _mono, _rootAttachments)
+        public MyInstance(string _uid, string _style, MyConfig _config, MyCatalog _catalog, LibMVCS.Logger _logger, Dictionary<string, LibMVCS.Any> _settings, MyEntryBase _entry, MonoBehaviour _mono, GameObject _rootAttachments)
+            : base(_uid, _style, _config, _catalog, _logger, _settings, _entry, _mono, _rootAttachments)
         {
-        }
-
-        /// <summary>
-        /// 应用样式
-        /// </summary>
-        public void ApplyStyle()
-        {
-            var btnVoice = rootUI.transform.Find("btnVoice").GetComponent<Button>();
-            alignByAncor(btnVoice.transform, style_.voiceButton.anchor);
-            loadSpriteFromTheme(style_.voiceButton.image, (_sprite) =>
-            {
-                btnVoice.GetComponent<Image>().sprite = _sprite;
-                btnVoice.GetComponent<Image>().SetNativeSize();
-            });
-            btnVoice.onClick.AddListener(() =>
-            {
-                playAudio("voice", Path.Combine(storageAddress_, activeBlock_.voice.file));
-            });
         }
 
         /// <summary>
@@ -60,6 +42,10 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// </summary>
         public void HandleCreated()
         {
+            applyStyle().OnFinish = () =>
+            {
+
+            };
         }
 
         /// <summary>
@@ -128,6 +114,29 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 }
             }
         }
+
+        /// <summary>
+        /// 应用样式
+        /// </summary>
+        private CounterSequence applyStyle()
+        {
+            var sequence = new CounterSequence(0);
+            var btnVoice = rootUI.transform.Find("btnVoice").GetComponent<Button>();
+            alignByAncor(btnVoice.transform, style_.voiceButton.anchor);
+            sequence.Dial();
+            loadSpriteFromTheme(style_.voiceButton.image, (_sprite) =>
+            {
+                btnVoice.GetComponent<Image>().sprite = _sprite;
+                btnVoice.GetComponent<Image>().SetNativeSize();
+                sequence.Tick();
+            });
+            btnVoice.onClick.AddListener(() =>
+            {
+                playAudio("voice", Path.Combine(storageAddress_, activeBlock_.voice.file));
+            });
+            return sequence;
+        }
+
 
         private void openAssetFromFile(string _assetFullpath)
         {
