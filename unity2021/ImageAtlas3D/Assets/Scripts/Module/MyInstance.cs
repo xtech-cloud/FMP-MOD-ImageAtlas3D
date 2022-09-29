@@ -84,10 +84,14 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             }
 
             var assetFullpath = combineAssetPath(_source, _uri);
+            {
+                logger_.Exception(new NotImplementedException("read asset from assloud not implemented"));
+            }
+            /*
             if (_source.StartsWith("file://"))
             {
                 openAssetFromFile(assetFullpath);
-            }
+            }*/
             rootUI.gameObject.SetActive(true);
         }
 
