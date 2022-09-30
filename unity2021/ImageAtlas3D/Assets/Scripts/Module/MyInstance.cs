@@ -26,11 +26,8 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         private Material cloneSkybox_;
         private Camera cloneCamera_;
 
-        /// <summary>
-        /// 内容中的文件的存储地址
-        /// </summary>
-        private string storageAddress_;
         private FormatSchemaV1.Block activeBlock_;
+        private ResourceReader resourceReader_;
 
         public MyInstance(string _uid, string _style, MyConfig _config, MyCatalog _catalog, LibMVCS.Logger _logger, Dictionary<string, LibMVCS.Any> _settings, MyEntryBase _entry, MonoBehaviour _mono, GameObject _rootAttachments)
             : base(_uid, _style, _config, _catalog, _logger, _settings, _entry, _mono, _rootAttachments)
@@ -42,6 +39,8 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// </summary>
         public void HandleCreated()
         {
+            resourceReader_ = new ResourceReader(contentObjectsPool);
+            resourceReader_.AssetRootPath = settings_["path.assets"].AsString();
             applyStyle().OnFinish = () =>
             {
 
@@ -60,6 +59,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// </summary>
         public void HandleOpened(string _source, string _uri)
         {
+            resourceReader_.ResourceUri = _uri;
             if (style_.renderer.Equals("skybox"))
             {
                 if (null == cloneCamera_)
@@ -83,16 +83,9 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 }
             }
 
-            var assetFullpath = combineAssetPath(_source, _uri);
-            {
-                logger_.Exception(new NotImplementedException("read asset from assloud not implemented"));
-            }
-            /*
-            if (_source.StartsWith("file://"))
-            {
-                openAssetFromFile(assetFullpath);
-            }*/
             rootUI.gameObject.SetActive(true);
+            //TODO 非WEB平台支持从归档文件打开
+            openResourceFromFolder(_uri);
         }
 
         /// <summary>
@@ -136,52 +129,34 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             });
             btnVoice.onClick.AddListener(() =>
             {
-                playAudio("voice", Path.Combine(storageAddress_, activeBlock_.voice.file));
+                playAudio("voice", activeBlock_.voice.file);
             });
             return sequence;
         }
 
-
-        private void openAssetFromFile(string _assetFullpath)
+        private void openResourceFromFolder(string _dir)
         {
-            logger_.Debug("ready to open {0}", _assetFullpath);
-            //优先使用文件夹
-            if (Directory.Exists(_assetFullpath + ".#"))
+            resourceReader_.LoadText("format.json", (_bytes) =>
             {
-                logger_.Debug("open {0}", _assetFullpath + ".#");
-                openAssetFromFolder(_assetFullpath + ".#");
-                return;
-            }
-            if (File.Exists(_assetFullpath))
-            {
-                logger_.Debug("open {0}", _assetFullpath);
-                return;
-            }
-            logger_.Error("{0} not found", _assetFullpath);
-        }
+                FormatSchemaV1 schema;
+                try
+                {
+                    string json = System.Text.Encoding.UTF8.GetString(_bytes);
+                    schema = JsonConvert.DeserializeObject<FormatSchemaV1>(json);
+                }
+                catch (Exception ex)
+                {
+                    logger_.Exception(ex);
+                    return;
+                }
 
-        private void openAssetFromFolder(string _dir)
-        {
-            string formatJson = Path.Combine(_dir, "format.json");
-            FormatSchemaV1 schema;
-            try
-            {
-                string json = File.ReadAllText(formatJson);
-                schema = JsonConvert.DeserializeObject<FormatSchemaV1>(json);
-            }
-            catch (Exception ex)
-            {
-                logger_.Exception(ex);
-                return;
-            }
-
-            storageAddress_ = _dir;
-            parseFormatSchema(schema);
+                parseFormatSchema(schema);
+            });
         }
 
         private void parseFormatSchema(FormatSchemaV1 _schema)
         {
-            playAudio("bgm", Path.Combine(storageAddress_, _schema.bgm.file));
+            playAudio("bgm", _schema.bgm.file);
             changeVolume("bgm", _schema.bgm.volume);
 
             foreach (var block in _schema.blocks)
@@ -195,12 +170,11 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         private void activateBlock(FormatSchemaV1.Block _block)
         {
             activeBlock_ = _block;
-            string imagePath = Path.Combine(storageAddress_, _block.image.file);
-            renderImage3D(imagePath, style_.renderer);
+            renderImage3D(_block.image.file, style_.renderer);
             changeVolume("bgm", _block.bgm.volume);
             if (!string.IsNullOrWhiteSpace(_block.bgm.file))
             {
-                playAudio("bgm", Path.Combine(storageAddress_, _block.bgm.file));
+                playAudio("bgm", _block.bgm.file);
             }
 
             stopAudio("voice");
@@ -212,7 +186,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         {
             var audioSource = rootUI.transform.Find("AudioSources/" + _audioSource).GetComponent<AudioSource>();
             string exclusiveNumber = _audioSource;
-            contentObjectsPool.LoadAudioClip(_file, exclusiveNumber, (_audioClip) =>
+            resourceReader_.LoadAudioClip(_file, (_audioClip) =>
             {
                 audioSource.clip = _audioClip;
                 audioSource.Play();
@@ -233,7 +207,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
 
         private void renderImage3D(string _file, string _renderer)
         {
-            contentObjectsPool.LoadTexture(_file, "image3D", (_texture) =>
+            resourceReader_.LoadTexture(_file, (_texture) =>
             {
                 cloneSkybox_.mainTexture = _texture;
             });
