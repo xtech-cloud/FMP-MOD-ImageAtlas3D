@@ -10,13 +10,13 @@ using UnityEngine;
 namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
 {
     /// <summary>
-    /// 资源读取器
+    /// 内容读取器
     /// </summary>
-    public class ResourceReader
+    public class ContentReader
     {
         protected ObjectsPool contentObjectPool_ { get; private set; }
 
-        public ResourceReader(ObjectsPool _contentObjectPool)
+        public ContentReader(ObjectsPool _contentObjectPool)
         {
             contentObjectPool_ = _contentObjectPool;
         }
@@ -27,21 +27,9 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         public string AssetRootPath { get; set; }
 
         /// <summary>
-        /// 资源的短路径，格式为 包名/_resources/资源名
+        /// 内容的短路径，格式为 包名/内容名
         /// </summary>
-        public string ResourceUri { get; set; }
-
-        /// <summary>
-        /// 加载纹理
-        /// </summary>
-        /// <param name="_file">文件相对路径，相对于包含format.json的资源文件夹</param>
-        /// <param name="_onFinish"></param>
-        public void LoadTexture(string _file, Action<Texture> _onFinish)
-        {
-            string dir = Path.Combine(AssetRootPath, ResourceUri);
-            string filefullpath = Path.Combine(dir, _file);
-            contentObjectPool_.LoadTexture(filefullpath, null, _onFinish);
-        }
+        public string ContentUri { get; set; }
 
         /// <summary>
         /// 加载精灵
@@ -50,7 +38,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// <param name="_onFinish"></param>
         public void LoadSprite(string _file, Action<Sprite> _onFinish)
         {
-            string dir = Path.Combine(AssetRootPath, ResourceUri);
+            string dir = Path.Combine(AssetRootPath, ContentUri);
             string filefullpath = Path.Combine(dir, _file);
             contentObjectPool_.LoadTexture(filefullpath, null, (_texture) =>
             {
@@ -66,23 +54,10 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// <param name="_onFinish"></param>
         public void LoadText(string _file, Action<byte[]> _onFinish)
         {
-            string dir = Path.Combine(AssetRootPath, ResourceUri);
+            string dir = Path.Combine(AssetRootPath, ContentUri);
             string filefullpath = Path.Combine(dir, _file);
             contentObjectPool_.LoadText(filefullpath, null, _onFinish);
         }
-
-        /// <summary>
-        /// 加载音频
-        /// </summary>
-        /// <param name="_file">文件相对路径，相对于包含format.json的资源文件夹</param>
-        /// <param name="_onFinish"></param>
-        public void LoadAudioClip(string _file, Action<AudioClip> _onFinish)
-        {
-            string dir = Path.Combine(AssetRootPath, ResourceUri);
-            string filefullpath = Path.Combine(dir, _file);
-            contentObjectPool_.LoadAudioClip(filefullpath, null, _onFinish);
-        }
-
     }
 }
 
