@@ -19,6 +19,11 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.MVCS
             /// 音量
             /// </summary>
             public int volume { get; set; } = 100;
+
+            /// <summary>
+            /// 时长
+            /// </summary>
+            public float duration { get; set; } = 0;
         }
 
         /// <summary>
@@ -85,7 +90,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.MVCS
         /// <summary>
         /// 块列表
         /// </summary>
-        public Block[] blocks{ get; set; } = new Block[0];
+        public Block[] blocks { get; set; } = new Block[0];
         /// <summary>
         /// 行为
         /// </summary>

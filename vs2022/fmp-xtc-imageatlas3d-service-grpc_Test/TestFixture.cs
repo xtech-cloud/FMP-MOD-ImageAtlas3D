@@ -6,9 +6,12 @@ using XTC.FMP.MOD.ImageAtlas3D.App.Service;
 /// </summary>
 public class TestFixture : TestFixtureBase
 {
+    //private SingletonServices singletonServices_;
+
     public TestFixture()
         : base()
     {
+        //singletonServices_ = new SingletonServices(new DatabaseOptions());
     }
 
     public override void Dispose()
@@ -20,13 +23,13 @@ public class TestFixture : TestFixtureBase
     protected override void newDesignerService()
     {
         throw new NotImplementedException();
-        //serviceDesigner_ = new DesignerService(new DesignerDAO(new DatabaseOptions()));
+        //serviceDesigner_ = new DesignerService(singletonServices_);
     }
 
     protected override void newHealthyService()
     {
         throw new NotImplementedException();
-        //serviceHealthy_ = new HealthyService(new HealthyDAO(new DatabaseOptions()));
+        //serviceHealthy_ = new HealthyService(singletonServices_);
     }
 
 }

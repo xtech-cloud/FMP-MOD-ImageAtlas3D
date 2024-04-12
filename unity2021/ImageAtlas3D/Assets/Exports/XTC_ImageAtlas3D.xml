@@ -15,8 +15,8 @@
     -->
   <Styles>
     <Style name="default" renderer="skybox">
-      <VoiceButton image="Voice#default.png">
-        <Anchor horizontal="center" vertical="bottom" marginH="0" marginV="50" width="202" height="72"/>
+      <VoiceButton image="button_bg.png">
+        <Anchor horizontal="right" vertical="bottom" marginH="50" marginV="50" width="187" height="64"/>
       </VoiceButton>
     </Style>
   </Styles>

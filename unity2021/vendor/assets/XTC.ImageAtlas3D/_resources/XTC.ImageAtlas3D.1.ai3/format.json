@@ -14,7 +14,8 @@
         },
         "voice": {
             "file": "1.mp3",
-            "volume": 100
+            "volume": 100,
+            "duration": "3.03"
         },
         "bgm": {
             "file": "",

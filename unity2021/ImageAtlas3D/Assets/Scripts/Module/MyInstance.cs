@@ -20,6 +20,16 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
     /// </summary>
     public class MyInstance : MyInstanceBase
     {
+        private class UiRefrence
+        {
+            public GameObject objTip;
+            public GameObject objLoading;
+            public Button btnVoice;
+            public Animator animatorVoice;
+            public AudioSource audioSourceBgm;
+            public AudioSource audioSourceVoice;
+        }
+
         private Material originSkybox_;
         private Camera originCamera_;
 
@@ -28,6 +38,10 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
 
         private FormatSchemaV1.Block activeBlock_;
         private ResourceReader resourceReader_;
+        private UiRefrence uiRefrence_ = new UiRefrence();
+        private Coroutine coroutineAnim_ = null;
+        private float voiceDuration_ = 0f;
+        private float voiceTimer_ = 0f;
 
         public MyInstance(string _uid, string _style, MyConfig _config, MyCatalog _catalog, LibMVCS.Logger _logger, Dictionary<string, LibMVCS.Any> _settings, MyEntryBase _entry, MonoBehaviour _mono, GameObject _rootAttachments)
             : base(_uid, _style, _config, _catalog, _logger, _settings, _entry, _mono, _rootAttachments)
@@ -39,12 +53,40 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// </summary>
         public void HandleCreated()
         {
-            resourceReader_ = new ResourceReader(contentObjectsPool);
+            resourceReader_ = new ResourceReader(assetObjectsPool);
             resourceReader_.AssetRootPath = settings_["path.assets"].AsString();
-            applyStyle().OnFinish = () =>
-            {
 
-            };
+            uiRefrence_.objLoading = rootUI.transform.Find("Loading").gameObject;
+            uiRefrence_.objTip = rootUI.transform.Find("imgTip").gameObject;
+            uiRefrence_.btnVoice = rootUI.transform.Find("btnVoice").GetComponent<Button>();
+            uiRefrence_.animatorVoice = rootUI.transform.Find("btnVoice/anim").GetComponent<Animator>();
+            uiRefrence_.audioSourceBgm = rootUI.transform.Find("AudioSources/bgm").GetComponent<AudioSource>();
+            uiRefrence_.audioSourceVoice = rootUI.transform.Find("AudioSources/voice").GetComponent<AudioSource>();
+
+            alignByAncor(uiRefrence_.btnVoice.transform, style_.voiceButton.anchor);
+            loadTextureFromTheme(style_.voiceButton.image, (_texture) =>
+            {
+                uiRefrence_.btnVoice.GetComponent<RawImage>().texture = _texture;
+            }, () => { });
+            uiRefrence_.btnVoice.onClick.AddListener(() =>
+            {
+                if (uiRefrence_.audioSourceVoice.clip == null)
+                {
+                    playVoice(activeBlock_.voice.file, activeBlock_.voice.duration);
+                }
+                else
+                {
+                    if (uiRefrence_.audioSourceVoice.isPlaying)
+                        pauseVoice();
+                    else
+                        resumeVoice();
+                }
+            });
+            stopVoice();
+
+            if (null != coroutineAnim_)
+                mono_.StopCoroutine(coroutineAnim_);
+            mono_.StartCoroutine(updateAnim());
         }
 
         /// <summary>
@@ -59,6 +101,9 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         /// </summary>
         public void HandleOpened(string _source, string _uri)
         {
+            uiRefrence_.objLoading.SetActive(true);
+            uiRefrence_.objTip.SetActive(true);
+
             resourceReader_.ResourceUri = _uri;
             if (style_.renderer.Equals("skybox"))
             {
@@ -86,6 +131,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             rootUI.gameObject.SetActive(true);
             //TODO 非WEB平台支持从归档文件打开
             openResourceFromFolder(_uri);
+
         }
 
         /// <summary>
@@ -110,28 +156,9 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                     cloneSkybox_ = null;
                 }
             }
-        }
 
-        /// <summary>
-        /// 应用样式
-        /// </summary>
-        private CounterSequence applyStyle()
-        {
-            var sequence = new CounterSequence(0);
-            var btnVoice = rootUI.transform.Find("btnVoice").GetComponent<Button>();
-            alignByAncor(btnVoice.transform, style_.voiceButton.anchor);
-            sequence.Dial();
-            loadSpriteFromTheme(style_.voiceButton.image, (_sprite) =>
-            {
-                btnVoice.GetComponent<Image>().sprite = _sprite;
-                btnVoice.GetComponent<Image>().SetNativeSize();
-                sequence.Tick();
-            });
-            btnVoice.onClick.AddListener(() =>
-            {
-                playAudio("voice", activeBlock_.voice.file);
-            });
-            return sequence;
+            if (null != coroutineAnim_)
+                mono_.StopCoroutine(coroutineAnim_);
         }
 
         private void openResourceFromFolder(string _dir)
@@ -151,13 +178,13 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 }
 
                 parseFormatSchema(schema);
-            });
+            }, () => { });
         }
 
         private void parseFormatSchema(FormatSchemaV1 _schema)
         {
-            playAudio("bgm", _schema.bgm.file);
-            changeVolume("bgm", _schema.bgm.volume);
+            playBgm(_schema.bgm.file);
+            changeBgmVolume(_schema.bgm.volume);
 
             foreach (var block in _schema.blocks)
             {
@@ -171,38 +198,63 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
         {
             activeBlock_ = _block;
             renderImage3D(_block.image.file, style_.renderer);
-            changeVolume("bgm", _block.bgm.volume);
+            changeBgmVolume(_block.bgm.volume);
             if (!string.IsNullOrWhiteSpace(_block.bgm.file))
             {
-                playAudio("bgm", _block.bgm.file);
+                playBgm(_block.bgm.file);
             }
 
-            stopAudio("voice");
-            var btnVoice = rootUI.transform.Find("btnVoice");
-            btnVoice.gameObject.SetActive(!string.IsNullOrWhiteSpace(_block.voice.file));
+            stopVoice();
+            uiRefrence_.btnVoice.gameObject.SetActive(!string.IsNullOrWhiteSpace(_block.voice.file));
         }
 
-        private void playAudio(string _audioSource, string _file)
+        private void playBgm(string _file)
         {
-            var audioSource = rootUI.transform.Find("AudioSources/" + _audioSource).GetComponent<AudioSource>();
-            string exclusiveNumber = _audioSource;
             resourceReader_.LoadAudioClip(_file, (_audioClip) =>
             {
-                audioSource.clip = _audioClip;
-                audioSource.Play();
-            });
+                uiRefrence_.audioSourceBgm.clip = _audioClip;
+                uiRefrence_.audioSourceBgm.Play();
+            }, () => { });
         }
 
-        private void stopAudio(string _audioSource)
+        private void stopBgm()
         {
-            var audioSource = rootUI.transform.Find("AudioSources/" + _audioSource).GetComponent<AudioSource>();
-            audioSource.Stop();
+            uiRefrence_.audioSourceBgm.Stop();
         }
 
-        private void changeVolume(string _audioSource, int _volume)
+        private void playVoice(string _file, float _duration)
         {
-            var audioSource = rootUI.transform.Find("AudioSources/" + _audioSource).GetComponent<AudioSource>();
-            audioSource.volume = _volume / 100.0f;
+            resourceReader_.LoadAudioClip(_file, (_audioClip) =>
+            {
+                uiRefrence_.animatorVoice.speed = 1;
+                uiRefrence_.audioSourceVoice.clip = _audioClip;
+                voiceDuration_ = _duration > 0 ? _duration : _audioClip.length;
+                uiRefrence_.audioSourceVoice.Play();
+            }, () => { });
+        }
+
+        private void pauseVoice()
+        {
+            uiRefrence_.audioSourceVoice.Pause();
+        }
+
+        private void resumeVoice()
+        {
+            uiRefrence_.audioSourceVoice.Play();
+        }
+
+        private void stopVoice()
+        {
+            uiRefrence_.audioSourceVoice.Stop();
+            voiceTimer_ = 0;
+            uiRefrence_.audioSourceVoice.clip = null;
+        }
+
+
+
+        private void changeBgmVolume(int _volume)
+        {
+            uiRefrence_.audioSourceBgm.volume = _volume / 100.0f;
         }
 
         private void renderImage3D(string _file, string _renderer)
@@ -210,7 +262,8 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             resourceReader_.LoadTexture(_file, (_texture) =>
             {
                 cloneSkybox_.mainTexture = _texture;
-            });
+                uiRefrence_.objLoading.SetActive(false);
+            }, () => { });
         }
 
         /// <summary>
@@ -232,6 +285,8 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 _gesture.position.y < camera.pixelRect.y ||
                 _gesture.position.y > camera.pixelRect.y + camera.pixelRect.height)
                     return;
+
+                uiRefrence_.objTip.SetActive(false);
                 var vec = _camera.localRotation.eulerAngles;
                 vec.y = vec.y + _gesture.swipeVector.x;
                 _camera.localRotation = Quaternion.Euler(vec.x, vec.y, vec.z);
@@ -248,6 +303,8 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 _gesture.position.y < camera.pixelRect.y ||
                 _gesture.position.y > camera.pixelRect.y + camera.pixelRect.height)
                     return;
+
+                uiRefrence_.objTip.SetActive(false);
                 var vec = _camera.localRotation.eulerAngles;
                 vec.x = vec.x - _gesture.swipeVector.y;
                 // 限制仰俯角
@@ -271,6 +328,27 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
                 _camera.GetComponent<Camera>().fieldOfView *= _gesture.deltaPinch;
             });
             */
+        }
+
+        private IEnumerator updateAnim()
+        {
+            bool isPlaying = false;
+            while (true)
+            {
+                yield return new WaitForEndOfFrame();
+                isPlaying = uiRefrence_.audioSourceVoice.clip != null && uiRefrence_.audioSourceVoice.isPlaying;
+                if (isPlaying)
+                {
+                    voiceTimer_ += Time.deltaTime;
+                    uiRefrence_.animatorVoice.speed = 1;
+                }
+                else
+                {
+                    uiRefrence_.animatorVoice.speed = 0;
+                }
+                if (voiceTimer_ > voiceDuration_)
+                    stopVoice();
+            }
         }
     }
 }

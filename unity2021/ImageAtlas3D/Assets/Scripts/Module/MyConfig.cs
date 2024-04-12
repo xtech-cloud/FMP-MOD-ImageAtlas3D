@@ -17,7 +17,7 @@ namespace XTC.FMP.MOD.ImageAtlas3D.LIB.Unity
             public string renderer { get; set; } = "";
 
             [XmlElement("VoiceButton")]
-            public UiElement voiceButton{ get; set; } = new UiElement();
+            public UiElement voiceButton { get; set; } = new UiElement();
         }
 
 
